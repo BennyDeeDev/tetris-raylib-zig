@@ -18,6 +18,7 @@
           zls
           raylib
           pkg-config
+          just
         ];
       };
     };
