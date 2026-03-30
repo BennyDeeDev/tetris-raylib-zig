@@ -13,6 +13,7 @@
     in
     {
       devShells.${system}.default = pkgs.mkShell {
+        name = "tetris-raylib-zig";
         packages = with pkgs; [
           zig
           zls
