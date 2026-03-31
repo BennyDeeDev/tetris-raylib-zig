@@ -8,13 +8,16 @@ const cols = 10;
 const rows = 20;
 
 const padding = cell;
-const sidebar_width = cell * 1;
+const sidebar_width = cell * 3;
 
-const game_width = cols * cell + cell;
-const game_height = rows * cell + cell;
+const game_width = cols * cell;
+const game_height = rows * cell;
 
-const screen_width = padding + game_width;
-const screen_height = padding + game_height;
+const board_x = padding;
+const board_y = padding;
+
+const screen_width = padding + game_width + padding + sidebar_width;
+const screen_height = padding + game_height + padding;
 
 const line_width = 1;
 
@@ -33,44 +36,32 @@ pub fn main() void {
 
         ray.ClearBackground(ray.BLACK);
 
-        for (2..rows + 1) |i| {
-            const y = cell * @as(c_int, @intCast(i));
-            drawLine(0, y, Direction.horizontal, ray.DARKGRAY);
+        for (1..rows) |i| {
+            const y: c_int = board_y + cell * @as(c_int, @intCast(i));
+            drawLine(board_x, y, .horizontal, ray.DARKGRAY);
         }
-        for (2..cols + 1) |i| {
-            const x = cell * @as(c_int, @intCast(i));
-            drawLine(x, 0, Direction.vertical, ray.DARKGRAY);
+        for (1..cols) |i| {
+            const x: c_int = board_x + cell * @as(c_int, @intCast(i));
+            drawLine(x, board_y, .vertical, ray.DARKGRAY);
         }
 
-        drawLine(0, 32, Direction.horizontal, ray.LIGHTGRAY);
-        drawLine(32, 0, Direction.vertical, ray.LIGHTGRAY);
-        drawLine(0, game_height, Direction.horizontal, ray.LIGHTGRAY);
-        drawLine(game_width, 0, Direction.vertical, ray.LIGHTGRAY);
+        drawLine(board_x, board_y, .horizontal, ray.LIGHTGRAY);
+        drawLine(board_x, board_y, .vertical, ray.LIGHTGRAY);
+        drawLine(board_x, board_y + game_height, .horizontal, ray.LIGHTGRAY);
+        drawLine(board_x + game_width, board_y, .vertical, ray.LIGHTGRAY);
     }
 }
 
 fn drawLine(x: c_int, y: c_int, dir: Direction, color: ray.Color) void {
-    var _x = x;
-    var _y = y;
+    const i_max: usize = if (dir == .horizontal) cols else rows;
 
-    var i_max: u8 = 0;
-
-    if (dir == .horizontal) {
-        i_max = cols;
-    } else if (dir == .vertical) {
-        i_max = rows;
-    }
-
-    for (1..i_max + 1) |i| {
+    for (0..i_max) |i| {
         if (dir == .horizontal) {
-            _x = cell * @as(c_int, @intCast(i));
-            ray.DrawRectangle(_x, _y, cell, line_width, color);
-        } else if (dir == .vertical) {
-            _y = cell * @as(c_int, @intCast(i));
-            ray.DrawRectangle(_x, _y, line_width, cell, color);
+            const _x: c_int = x + cell * @as(c_int, @intCast(i));
+            ray.DrawRectangle(_x, y, cell, line_width, color);
+        } else {
+            const _y: c_int = y + cell * @as(c_int, @intCast(i));
+            ray.DrawRectangle(x, _y, line_width, cell, color);
         }
-
-        std.debug.print("x = {}\n", .{_x});
-        std.debug.print("y = {}\n", .{_y});
     }
 }
