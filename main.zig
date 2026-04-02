@@ -49,11 +49,13 @@ pub fn main() void {
             }
         }
 
-        drawPiece(board_x, board_y + 64, Piece.O);
-        drawPiece(board_x + 64, board_y + 64, Piece.O);
-        drawPiece(board_x + 64 * 2, board_y + 64, Piece.O);
-        drawPiece(board_x + 64 * 3, board_y + 64, Piece.O);
-        drawPiece(board_x + 64 * 4, board_y + 64, Piece.O);
+        drawPiece(board_x, board_y + cell * 0, Piece.I);
+        drawPiece(board_x, board_y + cell * 2, Piece.O);
+        drawPiece(board_x, board_y + cell * 4, Piece.T);
+        drawPiece(board_x, board_y + cell * 6, Piece.S);
+        drawPiece(board_x, board_y + cell * 8, Piece.Z);
+        drawPiece(board_x, board_y + cell * 10, Piece.J);
+        drawPiece(board_x, board_y + cell * 12, Piece.L);
 
         ray.DrawRectangleLinesEx(
             .{
@@ -76,32 +78,76 @@ const PieceData = struct {
 };
 
 const pieces = struct {
+    const I = PieceData{ .shape = .{
+        .{ 1, 1, 1, 1 },
+        .{ 0, 0, 0, 0 },
+        .{ 0, 0, 0, 0 },
+        .{ 0, 0, 0, 0 },
+    }, .color = ray.SKYBLUE };
     const O = PieceData{ .shape = .{
         .{ 1, 1, 0, 0 },
         .{ 1, 1, 0, 0 },
         .{ 0, 0, 0, 0 },
         .{ 0, 0, 0, 0 },
     }, .color = ray.YELLOW };
+    const T = PieceData{ .shape = .{
+        .{ 0, 1, 0, 0 },
+        .{ 1, 1, 1, 0 },
+        .{ 0, 0, 0, 0 },
+        .{ 0, 0, 0, 0 },
+    }, .color = ray.PURPLE };
+    const S = PieceData{ .shape = .{
+        .{ 0, 1, 1, 0 },
+        .{ 1, 1, 0, 0 },
+        .{ 0, 0, 0, 0 },
+        .{ 0, 0, 0, 0 },
+    }, .color = ray.GREEN };
+    const Z = PieceData{ .shape = .{
+        .{ 1, 1, 0, 0 },
+        .{ 0, 1, 1, 0 },
+        .{ 0, 0, 0, 0 },
+        .{ 0, 0, 0, 0 },
+    }, .color = ray.RED };
+    const J = PieceData{ .shape = .{
+        .{ 1, 0, 0, 0 },
+        .{ 1, 1, 1, 0 },
+        .{ 0, 0, 0, 0 },
+        .{ 0, 0, 0, 0 },
+    }, .color = ray.BLUE };
+    const L = PieceData{ .shape = .{
+        .{ 0, 0, 1, 0 },
+        .{ 1, 1, 1, 0 },
+        .{ 0, 0, 0, 0 },
+        .{ 0, 0, 0, 0 },
+    }, .color = ray.ORANGE };
 };
 
+fn getPieceData(piece: Piece) PieceData {
+    return switch (piece) {
+        .I => pieces.I,
+        .O => pieces.O,
+        .T => pieces.T,
+        .S => pieces.S,
+        .Z => pieces.Z,
+        .J => pieces.J,
+        .L => pieces.L,
+    };
+}
+
 fn drawPiece(x: c_int, y: c_int, piece: Piece) void {
-    switch (piece) {
-        .O => {
-            for (pieces.O.shape, 0..) |row, rowIndex| {
-                for (row, 0..) |rowItem, rowItemIndex| {
-                    if (rowItem == 1) {
-                        ray.DrawRectangle(
-                            x + piece_gap + (cell * @as(c_int, @intCast(rowItemIndex))),
-                            y + piece_gap + (cell * @as(c_int, @intCast(rowIndex))),
-                            cell - piece_gap,
-                            cell - piece_gap,
-                            pieces.O.color,
-                        );
-                    }
-                }
+    const data = getPieceData(piece);
+    for (data.shape, 0..) |row, rowIndex| {
+        for (row, 0..) |rowItem, rowItemIndex| {
+            if (rowItem == 1) {
+                ray.DrawRectangle(
+                    x + piece_gap + (cell * @as(c_int, @intCast(rowItemIndex))),
+                    y + piece_gap + (cell * @as(c_int, @intCast(rowIndex))),
+                    cell - piece_gap,
+                    cell - piece_gap,
+                    data.color,
+                );
             }
-        },
-        else => {},
+        }
     }
 }
 
