@@ -69,29 +69,33 @@ pub fn main() void {
 }
 
 const Piece = enum { I, O, T, S, Z, J, L };
-const PieceShape = [4][1]u1;
+const PieceShape = [4][4]u1;
+const PieceData = struct {
+    shape: PieceShape,
+    color: ray.Color,
+};
 
 const pieces = struct {
-    const O = [4]PieceShape{
-        .{ .{1}, .{1}, .{0}, .{0} },
-        .{ .{1}, .{1}, .{0}, .{0} },
-        .{ .{0}, .{0}, .{0}, .{0} },
-        .{ .{0}, .{0}, .{0}, .{0} },
-    };
+    const O = PieceData{ .shape = .{
+        .{ 1, 1, 0, 0 },
+        .{ 1, 1, 0, 0 },
+        .{ 0, 0, 0, 0 },
+        .{ 0, 0, 0, 0 },
+    }, .color = ray.YELLOW };
 };
 
 fn drawPiece(x: c_int, y: c_int, piece: Piece) void {
     switch (piece) {
         .O => {
-            for (pieces.O, 0..) |row, rowIndex| {
+            for (pieces.O.shape, 0..) |row, rowIndex| {
                 for (row, 0..) |rowItem, rowItemIndex| {
-                    if (rowItem[0] == 1) {
+                    if (rowItem == 1) {
                         ray.DrawRectangle(
                             x + piece_gap + (cell * @as(c_int, @intCast(rowItemIndex))),
                             y + piece_gap + (cell * @as(c_int, @intCast(rowIndex))),
                             cell - piece_gap,
                             cell - piece_gap,
-                            ray.YELLOW,
+                            pieces.O.color,
                         );
                     }
                 }
