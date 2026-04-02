@@ -23,7 +23,7 @@ const screen_height = padding + game_height + padding;
 
 const piece_gap = 1;
 
-const isGridEnabled = true;
+const is_grid_enabled = true;
 
 fn shuffleBag(bag: *[7]Piece) void {
     var i: usize = bag.len - 1;
@@ -73,8 +73,8 @@ pub fn main() void {
             tick_counter = 0;
             if (active_piece == null) {
                 active_piece = ActivePiece{ .piece = .I, .rotation = 0, .x = cell * 4, .y = cell };
-            } else {
-                active_piece.?.y = active_piece.?.y + cell;
+            } else if (active_piece) |*ap| {
+                ap.y += cell;
             }
         }
 
@@ -82,7 +82,7 @@ pub fn main() void {
             drawPiece(ap.x, ap.y, ap.piece, ap.rotation);
         }
 
-        if (isGridEnabled) {
+        if (is_grid_enabled) {
             for (1..rows) |i| {
                 const y: f32 = @floatFromInt(board_y + cell * @as(c_int, @intCast(i)));
                 ray.DrawLineEx(.{
@@ -334,12 +334,12 @@ fn getPieceData(piece: Piece) PieceData {
 
 fn drawPiece(x: c_int, y: c_int, piece: Piece, rotation: u2) void {
     const data = getPieceData(piece);
-    for (data.states[rotation], 0..) |row, rowIndex| {
-        for (row, 0..) |rowItem, rowItemIndex| {
-            if (rowItem == 1) {
+    for (data.states[rotation], 0..) |row, row_index| {
+        for (row, 0..) |row_item, row_item_index| {
+            if (row_item == 1) {
                 ray.DrawRectangle(
-                    x + piece_gap + (cell * @as(c_int, @intCast(rowItemIndex))),
-                    y + piece_gap + (cell * @as(c_int, @intCast(rowIndex))),
+                    x + piece_gap + (cell * @as(c_int, @intCast(row_item_index))),
+                    y + piece_gap + (cell * @as(c_int, @intCast(row_index))),
                     cell - piece_gap,
                     cell - piece_gap,
                     data.color,
