@@ -49,7 +49,11 @@ pub fn main() void {
             }
         }
 
+        drawPiece(board_x, board_y + 64, Piece.O);
         drawPiece(board_x + 64, board_y + 64, Piece.O);
+        drawPiece(board_x + 64 * 2, board_y + 64, Piece.O);
+        drawPiece(board_x + 64 * 3, board_y + 64, Piece.O);
+        drawPiece(board_x + 64 * 4, board_y + 64, Piece.O);
 
         ray.DrawRectangleLinesEx(
             .{
@@ -68,9 +72,11 @@ const Piece = enum { I, O, T, S, Z, J, L };
 const PieceShape = [4][1]u1;
 
 const pieces = struct {
-    const O = [2]PieceShape{
-        .{ .{0}, .{1}, .{1}, .{0} },
-        .{ .{0}, .{1}, .{1}, .{0} },
+    const O = [4]PieceShape{
+        .{ .{1}, .{1}, .{0}, .{0} },
+        .{ .{1}, .{1}, .{0}, .{0} },
+        .{ .{0}, .{0}, .{0}, .{0} },
+        .{ .{0}, .{0}, .{0}, .{0} },
     };
 };
 
