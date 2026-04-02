@@ -23,6 +23,8 @@ const screen_height = padding + game_height + padding;
 
 const piece_gap = 1;
 
+const isGridEnabled = false;
+
 pub fn main() void {
     ray.SetConfigFlags(ray.FLAG_WINDOW_HIGHDPI);
     ray.InitWindow(screen_width, screen_height, "Tetris Raylib Zig");
@@ -36,23 +38,25 @@ pub fn main() void {
 
         ray.ClearBackground(ray.BLACK);
 
-        for (1..rows) |i| {
-            const y: c_int = board_y + cell * @as(c_int, @intCast(i));
-            drawLine(board_x, y, .Horizontal, ray.DARKGRAY);
+        if (isGridEnabled) {
+            for (1..rows) |i| {
+                const y: c_int = board_y + cell * @as(c_int, @intCast(i));
+                drawLine(board_x, y, .Horizontal, ray.DARKGRAY);
+            }
+            for (0..cols) |i| {
+                const x: c_int = board_x + cell * @as(c_int, @intCast(i));
+                drawLine(x, board_y, .Vertical, ray.DARKGRAY);
+            }
         }
-        for (0..cols) |i| {
-            const x: c_int = board_x + cell * @as(c_int, @intCast(i));
-            // drawLine(x, board_y, .Vertical, ray.DARKGRAY);
 
-            drawPiece(x, board_y, Piece.O);
-        }
+        drawPiece(board_x + 64, board_y + 64, Piece.O);
 
         ray.DrawRectangleLinesEx(
             .{
                 .x = padding,
                 .y = padding,
-                .width = game_width + line_width * 3,
-                .height = game_height + line_width * 3,
+                .width = game_width + line_width * 2 + piece_gap,
+                .height = game_height + line_width * 2 + piece_gap,
             },
             line_width,
             ray.LIGHTGRAY,
@@ -61,17 +65,31 @@ pub fn main() void {
 }
 
 const Piece = enum { I, O, T, S, Z, J, L };
+const PieceShape = [4][1]u1;
+
+const pieces = struct {
+    const O = [2]PieceShape{
+        .{ .{0}, .{1}, .{1}, .{0} },
+        .{ .{0}, .{1}, .{1}, .{0} },
+    };
+};
 
 fn drawPiece(x: c_int, y: c_int, piece: Piece) void {
     switch (piece) {
         .O => {
-            ray.DrawRectangle(
-                x + piece_gap,
-                y + piece_gap,
-                cell - piece_gap,
-                cell - piece_gap,
-                ray.YELLOW,
-            );
+            for (pieces.O, 0..) |row, rowIndex| {
+                for (row, 0..) |rowItem, rowItemIndex| {
+                    if (rowItem[0] == 1) {
+                        ray.DrawRectangle(
+                            x + piece_gap + (cell * @as(c_int, @intCast(rowItemIndex))),
+                            y + piece_gap + (cell * @as(c_int, @intCast(rowIndex))),
+                            cell - piece_gap,
+                            cell - piece_gap,
+                            ray.YELLOW,
+                        );
+                    }
+                }
+            }
         },
         else => {},
     }
