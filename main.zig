@@ -13,15 +13,15 @@ const sidebar_width = cell * 3;
 const game_width = cols * cell;
 const game_height = rows * cell;
 
-const board_x = padding;
-const board_y = padding;
+const line_width = 1;
+
+const board_x = padding + line_width;
+const board_y = padding + line_width;
 
 const screen_width = padding + game_width + padding + sidebar_width;
 const screen_height = padding + game_height + padding;
 
-const line_width = 1;
-
-const Direction = enum { vertical, horizontal };
+const piece_gap = 1;
 
 pub fn main() void {
     ray.SetConfigFlags(ray.FLAG_WINDOW_HIGHDPI);
@@ -38,25 +38,52 @@ pub fn main() void {
 
         for (1..rows) |i| {
             const y: c_int = board_y + cell * @as(c_int, @intCast(i));
-            drawLine(board_x, y, .horizontal, ray.DARKGRAY);
+            drawLine(board_x, y, .Horizontal, ray.DARKGRAY);
         }
-        for (1..cols) |i| {
+        for (0..cols) |i| {
             const x: c_int = board_x + cell * @as(c_int, @intCast(i));
-            drawLine(x, board_y, .vertical, ray.DARKGRAY);
+            // drawLine(x, board_y, .Vertical, ray.DARKGRAY);
+
+            drawPiece(x, board_y, Piece.O);
         }
 
-        drawLine(board_x, board_y, .horizontal, ray.LIGHTGRAY);
-        drawLine(board_x, board_y, .vertical, ray.LIGHTGRAY);
-        drawLine(board_x, board_y + game_height, .horizontal, ray.LIGHTGRAY);
-        drawLine(board_x + game_width, board_y, .vertical, ray.LIGHTGRAY);
+        ray.DrawRectangleLinesEx(
+            .{
+                .x = padding,
+                .y = padding,
+                .width = game_width + line_width * 3,
+                .height = game_height + line_width * 3,
+            },
+            line_width,
+            ray.LIGHTGRAY,
+        );
     }
 }
 
+const Piece = enum { I, O, T, S, Z, J, L };
+
+fn drawPiece(x: c_int, y: c_int, piece: Piece) void {
+    switch (piece) {
+        .O => {
+            ray.DrawRectangle(
+                x + piece_gap,
+                y + piece_gap,
+                cell - piece_gap,
+                cell - piece_gap,
+                ray.YELLOW,
+            );
+        },
+        else => {},
+    }
+}
+
+const Direction = enum { Vertical, Horizontal };
+
 fn drawLine(x: c_int, y: c_int, dir: Direction, color: ray.Color) void {
-    const i_max: usize = if (dir == .horizontal) cols else rows;
+    const i_max: usize = if (dir == .Horizontal) cols else rows;
 
     for (0..i_max) |i| {
-        if (dir == .horizontal) {
+        if (dir == .Horizontal) {
             const _x: c_int = x + cell * @as(c_int, @intCast(i));
             ray.DrawRectangle(_x, y, cell, line_width, color);
         } else {
