@@ -41,11 +41,17 @@ pub fn main() void {
         if (isGridEnabled) {
             for (1..rows) |i| {
                 const y: f32 = @floatFromInt(board_y + cell * @as(c_int, @intCast(i)));
-                ray.DrawLineEx(.{ .x = @floatFromInt(board_x), .y = y }, .{ .x = @floatFromInt(board_x + game_width), .y = y }, line_width, ray.DARKGRAY);
+                ray.DrawLineEx(.{ .x = @floatFromInt(board_x), .y = y }, .{
+                    .x = @floatFromInt(board_x + game_width),
+                    .y = y,
+                }, line_width, ray.DARKGRAY);
             }
             for (1..cols) |i| {
                 const x: f32 = @floatFromInt(board_x + cell * @as(c_int, @intCast(i)));
-                ray.DrawLineEx(.{ .x = x, .y = @floatFromInt(board_y) }, .{ .x = x, .y = @floatFromInt(board_y + game_height) }, line_width, ray.DARKGRAY);
+                ray.DrawLineEx(.{ .x = x, .y = @floatFromInt(board_y) }, .{
+                    .x = x,
+                    .y = @floatFromInt(board_y + game_height),
+                }, line_width, ray.DARKGRAY);
             }
         }
 
@@ -110,32 +116,35 @@ const pieces = struct {
         },
         .color = ray.SKYBLUE,
     };
-    const O = PieceData{ .states = .{
-        .{
-            .{ 1, 1, 0, 0 },
-            .{ 1, 1, 0, 0 },
-            .{ 0, 0, 0, 0 },
-            .{ 0, 0, 0, 0 },
+    const O = PieceData{
+        .states = .{
+            .{
+                .{ 1, 1, 0, 0 },
+                .{ 1, 1, 0, 0 },
+                .{ 0, 0, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{
+                .{ 1, 1, 0, 0 },
+                .{ 1, 1, 0, 0 },
+                .{ 0, 0, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{
+                .{ 1, 1, 0, 0 },
+                .{ 1, 1, 0, 0 },
+                .{ 0, 0, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{
+                .{ 1, 1, 0, 0 },
+                .{ 1, 1, 0, 0 },
+                .{ 0, 0, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
         },
-        .{
-            .{ 1, 1, 0, 0 },
-            .{ 1, 1, 0, 0 },
-            .{ 0, 0, 0, 0 },
-            .{ 0, 0, 0, 0 },
-        },
-        .{
-            .{ 1, 1, 0, 0 },
-            .{ 1, 1, 0, 0 },
-            .{ 0, 0, 0, 0 },
-            .{ 0, 0, 0, 0 },
-        },
-        .{
-            .{ 1, 1, 0, 0 },
-            .{ 1, 1, 0, 0 },
-            .{ 0, 0, 0, 0 },
-            .{ 0, 0, 0, 0 },
-        },
-    }, .color = ray.YELLOW };
+        .color = ray.YELLOW,
+    };
     const T = PieceData{
         .states = .{
             .{ // 0°
