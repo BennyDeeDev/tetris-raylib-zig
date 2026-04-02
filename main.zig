@@ -49,13 +49,16 @@ pub fn main() void {
             }
         }
 
-        drawPiece(board_x, board_y + cell * 0, Piece.I);
-        drawPiece(board_x, board_y + cell * 2, Piece.O);
-        drawPiece(board_x, board_y + cell * 4, Piece.T);
-        drawPiece(board_x, board_y + cell * 6, Piece.S);
-        drawPiece(board_x, board_y + cell * 8, Piece.Z);
-        drawPiece(board_x, board_y + cell * 10, Piece.J);
-        drawPiece(board_x, board_y + cell * 12, Piece.L);
+        drawPiece(board_x, board_y + cell * 0, Piece.I, 0);
+        drawPiece(board_x + cell * 5, board_y + cell * 0, Piece.I, 1);
+        drawPiece(board_x, board_y + cell * 2, Piece.T, 0);
+        drawPiece(board_x + cell * 5, board_y + cell * 2, Piece.T, 1);
+        drawPiece(board_x, board_y + cell * 5, Piece.T, 2);
+        drawPiece(board_x + cell * 5, board_y + cell * 5, Piece.T, 3);
+        drawPiece(board_x, board_y + cell * 8, Piece.L, 0);
+        drawPiece(board_x + cell * 5, board_y + cell * 8, Piece.L, 1);
+        drawPiece(board_x, board_y + cell * 11, Piece.L, 2);
+        drawPiece(board_x + cell * 5, board_y + cell * 11, Piece.L, 3);
 
         ray.DrawRectangleLinesEx(
             .{
@@ -73,53 +76,211 @@ pub fn main() void {
 const Piece = enum { I, O, T, S, Z, J, L };
 const PieceShape = [4][4]u1;
 const PieceData = struct {
-    shape: PieceShape,
+    states: [4]PieceShape,
     color: ray.Color,
 };
 
 const pieces = struct {
-    const I = PieceData{ .shape = .{
-        .{ 1, 1, 1, 1 },
-        .{ 0, 0, 0, 0 },
-        .{ 0, 0, 0, 0 },
-        .{ 0, 0, 0, 0 },
-    }, .color = ray.SKYBLUE };
-    const O = PieceData{ .shape = .{
-        .{ 1, 1, 0, 0 },
-        .{ 1, 1, 0, 0 },
-        .{ 0, 0, 0, 0 },
-        .{ 0, 0, 0, 0 },
+    const I = PieceData{
+        .states = .{
+            .{ // 0°
+                .{ 1, 1, 1, 1 },
+                .{ 0, 0, 0, 0 },
+                .{ 0, 0, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{ // 90°
+                .{ 1, 0, 0, 0 },
+                .{ 1, 0, 0, 0 },
+                .{ 1, 0, 0, 0 },
+                .{ 1, 0, 0, 0 },
+            },
+            .{ // 180°
+                .{ 1, 1, 1, 1 },
+                .{ 0, 0, 0, 0 },
+                .{ 0, 0, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{ // 270°
+                .{ 1, 0, 0, 0 },
+                .{ 1, 0, 0, 0 },
+                .{ 1, 0, 0, 0 },
+                .{ 1, 0, 0, 0 },
+            },
+        },
+        .color = ray.SKYBLUE,
+    };
+    const O = PieceData{ .states = .{
+        .{
+            .{ 1, 1, 0, 0 },
+            .{ 1, 1, 0, 0 },
+            .{ 0, 0, 0, 0 },
+            .{ 0, 0, 0, 0 },
+        },
+        .{
+            .{ 1, 1, 0, 0 },
+            .{ 1, 1, 0, 0 },
+            .{ 0, 0, 0, 0 },
+            .{ 0, 0, 0, 0 },
+        },
+        .{
+            .{ 1, 1, 0, 0 },
+            .{ 1, 1, 0, 0 },
+            .{ 0, 0, 0, 0 },
+            .{ 0, 0, 0, 0 },
+        },
+        .{
+            .{ 1, 1, 0, 0 },
+            .{ 1, 1, 0, 0 },
+            .{ 0, 0, 0, 0 },
+            .{ 0, 0, 0, 0 },
+        },
     }, .color = ray.YELLOW };
-    const T = PieceData{ .shape = .{
-        .{ 0, 1, 0, 0 },
-        .{ 1, 1, 1, 0 },
-        .{ 0, 0, 0, 0 },
-        .{ 0, 0, 0, 0 },
-    }, .color = ray.PURPLE };
-    const S = PieceData{ .shape = .{
-        .{ 0, 1, 1, 0 },
-        .{ 1, 1, 0, 0 },
-        .{ 0, 0, 0, 0 },
-        .{ 0, 0, 0, 0 },
-    }, .color = ray.GREEN };
-    const Z = PieceData{ .shape = .{
-        .{ 1, 1, 0, 0 },
-        .{ 0, 1, 1, 0 },
-        .{ 0, 0, 0, 0 },
-        .{ 0, 0, 0, 0 },
-    }, .color = ray.RED };
-    const J = PieceData{ .shape = .{
-        .{ 1, 0, 0, 0 },
-        .{ 1, 1, 1, 0 },
-        .{ 0, 0, 0, 0 },
-        .{ 0, 0, 0, 0 },
-    }, .color = ray.BLUE };
-    const L = PieceData{ .shape = .{
-        .{ 0, 0, 1, 0 },
-        .{ 1, 1, 1, 0 },
-        .{ 0, 0, 0, 0 },
-        .{ 0, 0, 0, 0 },
-    }, .color = ray.ORANGE };
+    const T = PieceData{
+        .states = .{
+            .{ // 0°
+                .{ 0, 1, 0, 0 },
+                .{ 1, 1, 1, 0 },
+                .{ 0, 0, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{ // 90°
+                .{ 0, 1, 0, 0 },
+                .{ 0, 1, 1, 0 },
+                .{ 0, 1, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{ // 180°
+                .{ 0, 0, 0, 0 },
+                .{ 1, 1, 1, 0 },
+                .{ 0, 1, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{ // 270°
+                .{ 0, 1, 0, 0 },
+                .{ 1, 1, 0, 0 },
+                .{ 0, 1, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+        },
+        .color = ray.PURPLE,
+    };
+    const S = PieceData{
+        .states = .{
+            .{ // 0°
+                .{ 0, 1, 1, 0 },
+                .{ 1, 1, 0, 0 },
+                .{ 0, 0, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{ // 90°
+                .{ 0, 1, 0, 0 },
+                .{ 0, 1, 1, 0 },
+                .{ 0, 0, 1, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{ // 180°
+                .{ 0, 1, 1, 0 },
+                .{ 1, 1, 0, 0 },
+                .{ 0, 0, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{ // 270°
+                .{ 0, 1, 0, 0 },
+                .{ 0, 1, 1, 0 },
+                .{ 0, 0, 1, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+        },
+        .color = ray.GREEN,
+    };
+    const Z = PieceData{
+        .states = .{
+            .{ // 0°
+                .{ 1, 1, 0, 0 },
+                .{ 0, 1, 1, 0 },
+                .{ 0, 0, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{ // 90°
+                .{ 0, 0, 1, 0 },
+                .{ 0, 1, 1, 0 },
+                .{ 0, 1, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{ // 180°
+                .{ 1, 1, 0, 0 },
+                .{ 0, 1, 1, 0 },
+                .{ 0, 0, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{ // 270°
+                .{ 0, 0, 1, 0 },
+                .{ 0, 1, 1, 0 },
+                .{ 0, 1, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+        },
+        .color = ray.RED,
+    };
+    const J = PieceData{
+        .states = .{
+            .{ // 0°
+                .{ 1, 0, 0, 0 },
+                .{ 1, 1, 1, 0 },
+                .{ 0, 0, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{ // 90°
+                .{ 0, 1, 1, 0 },
+                .{ 0, 1, 0, 0 },
+                .{ 0, 1, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{ // 180°
+                .{ 0, 0, 0, 0 },
+                .{ 1, 1, 1, 0 },
+                .{ 0, 0, 1, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{ // 270°
+                .{ 0, 1, 0, 0 },
+                .{ 0, 1, 0, 0 },
+                .{ 1, 1, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+        },
+        .color = ray.BLUE,
+    };
+    const L = PieceData{
+        .states = .{
+            .{ // 0°
+                .{ 0, 0, 1, 0 },
+                .{ 1, 1, 1, 0 },
+                .{ 0, 0, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{ // 90°
+                .{ 0, 1, 0, 0 },
+                .{ 0, 1, 0, 0 },
+                .{ 0, 1, 1, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{ // 180°
+                .{ 0, 0, 0, 0 },
+                .{ 1, 1, 1, 0 },
+                .{ 1, 0, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+            .{ // 270°
+                .{ 1, 1, 0, 0 },
+                .{ 0, 1, 0, 0 },
+                .{ 0, 1, 0, 0 },
+                .{ 0, 0, 0, 0 },
+            },
+        },
+        .color = ray.ORANGE,
+    };
 };
 
 fn getPieceData(piece: Piece) PieceData {
@@ -134,9 +295,9 @@ fn getPieceData(piece: Piece) PieceData {
     };
 }
 
-fn drawPiece(x: c_int, y: c_int, piece: Piece) void {
+fn drawPiece(x: c_int, y: c_int, piece: Piece, rotation: u2) void {
     const data = getPieceData(piece);
-    for (data.shape, 0..) |row, rowIndex| {
+    for (data.states[rotation], 0..) |row, rowIndex| {
         for (row, 0..) |rowItem, rowItemIndex| {
             if (rowItem == 1) {
                 ray.DrawRectangle(
