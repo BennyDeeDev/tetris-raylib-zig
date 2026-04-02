@@ -23,7 +23,7 @@ const screen_height = padding + game_height + padding;
 
 const piece_gap = 1;
 
-const isGridEnabled = false;
+const isGridEnabled = true;
 
 pub fn main() void {
     ray.SetConfigFlags(ray.FLAG_WINDOW_HIGHDPI);
@@ -40,12 +40,12 @@ pub fn main() void {
 
         if (isGridEnabled) {
             for (1..rows) |i| {
-                const y: c_int = board_y + cell * @as(c_int, @intCast(i));
-                drawLine(board_x, y, .Horizontal, ray.DARKGRAY);
+                const y: f32 = @floatFromInt(board_y + cell * @as(c_int, @intCast(i)));
+                ray.DrawLineEx(.{ .x = @floatFromInt(board_x), .y = y }, .{ .x = @floatFromInt(board_x + game_width), .y = y }, line_width, ray.DARKGRAY);
             }
-            for (0..cols) |i| {
-                const x: c_int = board_x + cell * @as(c_int, @intCast(i));
-                drawLine(x, board_y, .Vertical, ray.DARKGRAY);
+            for (1..cols) |i| {
+                const x: f32 = @floatFromInt(board_x + cell * @as(c_int, @intCast(i)));
+                ray.DrawLineEx(.{ .x = x, .y = @floatFromInt(board_y) }, .{ .x = x, .y = @floatFromInt(board_y + game_height) }, line_width, ray.DARKGRAY);
             }
         }
 
@@ -308,22 +308,6 @@ fn drawPiece(x: c_int, y: c_int, piece: Piece, rotation: u2) void {
                     data.color,
                 );
             }
-        }
-    }
-}
-
-const Direction = enum { Vertical, Horizontal };
-
-fn drawLine(x: c_int, y: c_int, dir: Direction, color: ray.Color) void {
-    const i_max: usize = if (dir == .Horizontal) cols else rows;
-
-    for (0..i_max) |i| {
-        if (dir == .Horizontal) {
-            const _x: c_int = x + cell * @as(c_int, @intCast(i));
-            ray.DrawRectangle(_x, y, cell, line_width, color);
-        } else {
-            const _y: c_int = y + cell * @as(c_int, @intCast(i));
-            ray.DrawRectangle(x, _y, line_width, cell, color);
         }
     }
 }
