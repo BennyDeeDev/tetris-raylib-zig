@@ -25,46 +25,37 @@ const piece_gap = 1;
 
 const isGridEnabled = true;
 
+fn shuffleBag(bag: *[7]Piece) void {
+    var i: usize = bag.len - 1;
+    while (i > 0) : (i -= 1) {
+        const j = std.crypto.random.intRangeLessThan(usize, 0, i + 1);
+        const tmp = bag[i];
+        bag[i] = bag[j];
+        bag[j] = tmp;
+    }
+}
+
+const ActivePiece = struct {
+    piece: Piece,
+    rotation: u2,
+    x: c_int,
+    y: c_int,
+};
+
 pub fn main() void {
     ray.SetConfigFlags(ray.FLAG_WINDOW_HIGHDPI);
     ray.InitWindow(screen_width, screen_height, "Tetris Raylib Zig");
     defer ray.CloseWindow();
 
     ray.SetTargetFPS(60);
+    var tick_counter: usize = 0;
+    var active_piece: ?ActivePiece = null;
 
     while (!ray.WindowShouldClose()) {
         ray.BeginDrawing();
         defer ray.EndDrawing();
 
         ray.ClearBackground(ray.BLACK);
-
-        if (isGridEnabled) {
-            for (1..rows) |i| {
-                const y: f32 = @floatFromInt(board_y + cell * @as(c_int, @intCast(i)));
-                ray.DrawLineEx(.{ .x = @floatFromInt(board_x), .y = y }, .{
-                    .x = @floatFromInt(board_x + game_width),
-                    .y = y,
-                }, line_width, ray.DARKGRAY);
-            }
-            for (1..cols) |i| {
-                const x: f32 = @floatFromInt(board_x + cell * @as(c_int, @intCast(i)));
-                ray.DrawLineEx(.{ .x = x, .y = @floatFromInt(board_y) }, .{
-                    .x = x,
-                    .y = @floatFromInt(board_y + game_height),
-                }, line_width, ray.DARKGRAY);
-            }
-        }
-
-        drawPiece(board_x, board_y + cell * 0, Piece.I, 0);
-        drawPiece(board_x + cell * 5, board_y + cell * 0, Piece.I, 1);
-        drawPiece(board_x, board_y + cell * 2, Piece.T, 0);
-        drawPiece(board_x + cell * 5, board_y + cell * 2, Piece.T, 1);
-        drawPiece(board_x, board_y + cell * 5, Piece.T, 2);
-        drawPiece(board_x + cell * 5, board_y + cell * 5, Piece.T, 3);
-        drawPiece(board_x, board_y + cell * 8, Piece.L, 0);
-        drawPiece(board_x + cell * 5, board_y + cell * 8, Piece.L, 1);
-        drawPiece(board_x, board_y + cell * 11, Piece.L, 2);
-        drawPiece(board_x + cell * 5, board_y + cell * 11, Piece.L, 3);
 
         ray.DrawRectangleLinesEx(
             .{
@@ -76,6 +67,43 @@ pub fn main() void {
             line_width,
             ray.LIGHTGRAY,
         );
+
+        tick_counter += 1;
+        if (tick_counter % 30 == 0) {
+            tick_counter = 0;
+            if (active_piece == null) {
+                active_piece = ActivePiece{ .piece = .I, .rotation = 0, .x = cell * 4, .y = cell };
+            } else {
+                active_piece.?.y = active_piece.?.y + cell;
+            }
+        }
+
+        if (active_piece) |ap| {
+            drawPiece(ap.x, ap.y, ap.piece, ap.rotation);
+        }
+
+        if (isGridEnabled) {
+            for (1..rows) |i| {
+                const y: f32 = @floatFromInt(board_y + cell * @as(c_int, @intCast(i)));
+                ray.DrawLineEx(.{
+                    .x = @floatFromInt(board_x),
+                    .y = y,
+                }, .{
+                    .x = @floatFromInt(board_x + game_width),
+                    .y = y,
+                }, line_width, ray.DARKGRAY);
+            }
+            for (1..cols) |i| {
+                const x: f32 = @floatFromInt(board_x + cell * @as(c_int, @intCast(i)));
+                ray.DrawLineEx(.{
+                    .x = x,
+                    .y = @floatFromInt(board_y),
+                }, .{
+                    .x = x,
+                    .y = @floatFromInt(board_y + game_height),
+                }, line_width, ray.DARKGRAY);
+            }
+        }
     }
 }
 
