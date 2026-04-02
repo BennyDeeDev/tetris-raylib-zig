@@ -25,7 +25,8 @@ const piece_gap = 1;
 
 const is_grid_enabled = true;
 
-fn shuffleBag(bag: *[7]Piece) void {
+fn shuffleBag() [7]Piece {
+    var bag = [7]Piece{ .I, .O, .T, .S, .Z, .J, .L };
     var i: usize = bag.len - 1;
     while (i > 0) : (i -= 1) {
         const j = std.crypto.random.intRangeLessThan(usize, 0, i + 1);
@@ -33,7 +34,15 @@ fn shuffleBag(bag: *[7]Piece) void {
         bag[i] = bag[j];
         bag[j] = tmp;
     }
+    return bag;
 }
+
+const GameState = struct {
+    bag: [7]Piece,
+    bag_index: usize,
+    active_piece: ?ActivePiece,
+    tick_counter: usize,
+};
 
 const ActivePiece = struct {
     piece: Piece,
@@ -48,8 +57,13 @@ pub fn main() void {
     defer ray.CloseWindow();
 
     ray.SetTargetFPS(60);
-    var tick_counter: usize = 0;
-    var active_piece: ?ActivePiece = null;
+
+    var gs = GameState{
+        .bag = shuffleBag(),
+        .bag_index = 0,
+        .active_piece = null,
+        .tick_counter = 0,
+    };
 
     while (!ray.WindowShouldClose()) {
         ray.BeginDrawing();
@@ -68,17 +82,23 @@ pub fn main() void {
             ray.LIGHTGRAY,
         );
 
-        tick_counter += 1;
-        if (tick_counter % 30 == 0) {
-            tick_counter = 0;
-            if (active_piece == null) {
-                active_piece = ActivePiece{ .piece = .I, .rotation = 0, .x = cell * 4, .y = cell };
-            } else if (active_piece) |*ap| {
+        gs.tick_counter += 1;
+        if (gs.tick_counter % 30 == 0) {
+            gs.tick_counter = 0;
+            if (gs.active_piece == null) {
+                if (gs.bag_index >= 7) {
+                    gs.bag = shuffleBag();
+                    gs.bag_index = 0;
+                }
+                const next_piece = gs.bag[gs.bag_index];
+                gs.bag_index += 1;
+                gs.active_piece = ActivePiece{ .piece = next_piece, .rotation = 0, .x = cell * 4, .y = cell };
+            } else if (gs.active_piece) |*ap| {
                 ap.y += cell;
             }
         }
 
-        if (active_piece) |ap| {
+        if (gs.active_piece) |ap| {
             drawPiece(ap.x, ap.y, ap.piece, ap.rotation);
         }
 
